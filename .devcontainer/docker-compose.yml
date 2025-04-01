@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: ./Dockerfile
     volumes:
+      # Docker volume to contain node_modules for performance reason
+      - node_modules:/workspace/node_modules
       - ../:/workspace
       # Docker
       - /var/run/docker.sock:/var/run/docker.sock
@@ -36,3 +38,5 @@ services:
       - "27017:27017"
     restart: always
 
+volumes:
+  node_modules:

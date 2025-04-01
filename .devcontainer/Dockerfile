@@ -40,4 +40,8 @@ ENV NODE_PATH="/root/.npm-packages/lib/node_modules" \
 RUN echo "prefix = /root/.npm-packages" >> /root/.npmrc && \
     chmod 600 /root/.npmrc
 ENV PATH=/root/.npm-packages/bin:$PATH
+# Fix ownership and permissions of anonymous volume 'node_modules'
+VOLUME [ "/workspace/node_modules" ]
+RUN mkdir -p /workspace/node_modules && \
+    chmod 700 /workspace/node_modules
 

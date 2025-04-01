@@ -39,3 +39,9 @@
 - Run `npm run build` to build all three microservices togehter
 - Setup your own .env
 - Then run `npm run start:prod` to run all three microservices in prod mode
+
+# How to containerized if is not on DevContainer
+
+- A mongo db is ready inside the docker compose script, you can use that or ready up your own mongodb connection and update on the .env
+- Run `docker compose build` to build container
+- Then `docker compose up -d` to up the container

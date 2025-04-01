@@ -1,0 +1,25 @@
+services:
+  app-service:
+    image: app-service
+    container_name: app-service
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    expose:
+      - "3020"
+      - "3021"
+      - "3022"
+    ports:
+      - 3020:3020
+      - 3021:3021
+      - 3022:3022
+    restart: always
+  mongo-server:
+    container_name: mongo-prod
+    hostname: mongo
+    image: mongodb/mongodb-community-server:latest
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+    restart: always
