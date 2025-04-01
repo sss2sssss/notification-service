@@ -23,6 +23,10 @@
   - notification: http://localhost:3020/notifications
   - company: http://localhost:3021/companys
   - user: http://localhost:3022/users
+- Also Swagger Documents will be auto populate as well:
+  - notification: http://localhost:3020/api
+  - company: http://localhost:3021/api
+  - user: http://localhost:3022/api
 
 # How to run unit test
 

@@ -12,10 +12,28 @@ import { CompanysRepository } from './companys.repository';
 export class CompanysService {
   constructor(private readonly companysRepository: CompanysRepository) {}
 
-  create(createCompanyDto: CreateCompanyDto) {
+  async create(createCompanyDto: CreateCompanyDto) {
+    const companyNameExistsCheck = await this.existsCheck(
+      createCompanyDto.companyName,
+    );
+
+    if (companyNameExistsCheck)
+      throw new HttpException('Company Name Exists', HttpStatus.FORBIDDEN);
+
     return this.companysRepository.create({
       ...createCompanyDto,
     });
+  }
+
+  async existsCheck(companyName: string) {
+    try {
+      const result = await this.companysRepository.findOne({ companyName });
+
+      return result?._id !== undefined && result?._id !== null;
+    } catch (err: any) {
+      if (err instanceof NotFoundException) return false;
+      throw err;
+    }
   }
 
   findAll() {

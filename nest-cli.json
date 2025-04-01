@@ -5,7 +5,8 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "tsConfigPath": "apps/notifications/tsconfig.app.json"
+    "tsConfigPath": "apps/notifications/tsconfig.app.json",
+    "plugins": ["@nestjs/swagger"]
   },
   "projects": {
     "notifications": {
