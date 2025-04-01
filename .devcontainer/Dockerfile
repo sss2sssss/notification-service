@@ -9,7 +9,7 @@ RUN apt-get update -y && \
 
 # Timezone
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends tzdata procps && \
+    apt-get install -y --no-install-recommends tzdata procps ssh && \
     rm -r /var/cache/* /var/lib/apt/lists/*
 ENV TZ=
 
