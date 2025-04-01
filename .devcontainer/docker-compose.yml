@@ -1,0 +1,38 @@
+services:
+  test-project-dev:
+    image: test-project-dev:latest
+    container_name: test-project-dev
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ../:/workspace
+      # Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      # SSH directory for Linux, OSX and WSL
+      # On Linux and OSX, a symlink /mnt/ssh <-> ~/.ssh is
+      # created in the container. On Windows, files are copied
+      # from /mnt/ssh to ~/.ssh to fix permissions.
+      - ~/.ssh:/mnt/ssh
+    environment:
+      - TZ=Asia/Kuala_Lumpur
+    depends_on:
+      - mongo-dev
+    expose:
+      - 3020
+      - 3021
+      - 3022
+    ports:
+      - 3080/tcp
+    entrypoint: ["bash", "-c", "while sleep 1000; do :; done"]
+  mongo-dev:
+    container_name: mongo
+    hostname: mongo
+    image: mongodb/mongodb-community-server:latest
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+    restart: always
+

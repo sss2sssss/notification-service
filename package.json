@@ -1,0 +1,105 @@
+{
+  "name": "notifications",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "concurrently \"npm run build-users\" \"npm run build-companys\" \"npm run build-notifications\"",
+    "build-users": "nest build users",
+    "build-companys": "nest build companys",
+    "build-notifications": "nest build notifications",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
+    "start": "concurrently \"npm run start-users\" \"npm run start-companys\" \"npm run start-notifications\"",
+    "start-users": "nest start users",
+    "start-companys": "nest start companys",
+    "start-notifications": "nest start notifications",
+    "start:dev": "concurrently \"npm run start:dev-users\" \"npm run start:dev-companys\" \"npm run start:dev-notifications\"",
+    "start:dev-users": "nest start users --watch",
+    "start:dev-companys": "nest start companys --watch",
+    "start:dev-notifications": "nest start notifications --watch",
+    "start:debug": "concurrently \"npm run start:debug-users\" \"npm run start:debug-companys\" \"npm run start:debug-notifications\"",
+    "start:debug-users": "nest start users --debug --watch",
+    "start:debug-companys": "nest start companys --debug --watch",
+    "start:debug-notifications": "nest start notifications --debug --watch",
+    "start:prod": "concurrently \"npm run start:prod-users\" \"npm run start:prod-companys\" \"npm run start:prod-notifications\"",
+    "start:prod-users": "node dist/apps/users/main",
+    "start:prod-companys": "node dist/apps/companys/main",
+    "start:prod-notifications": "node dist/apps/notifications/main",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./apps/notifications/test/jest-e2e.json"
+  },
+  "dependencies": {
+    "@nestjs/axios": "^4.0.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/mapped-types": "^2.1.0",
+    "@nestjs/mongoose": "^11.0.3",
+    "@nestjs/platform-express": "^11.0.1",
+    "axios": "^1.8.4",
+    "joi": "^17.13.3",
+    "mongoose": "^8.13.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.18.0",
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@nestjs/testing": "^11.0.1",
+    "@nestjs/typeorm": "^11.0.0",
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.10.7",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.7",
+    "@types/supertest": "^6.0.2",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "globals": "^16.0.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.4.2",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.20.0",
+    "uuid": "^11.1.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": ".",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "./coverage",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/libs/",
+      "<rootDir>/apps/"
+    ],
+    "moduleNameMapper": {
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
+    }
+  }
+}

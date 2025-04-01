@@ -1,0 +1,39 @@
+{
+    "name": "Test Project VS Code Remote Container",
+    "dockerComposeFile": ["docker-compose.yml"],
+    "service": "test-project-dev",
+    "runServices": ["test-project-dev","mongo-dev"],
+    "shutdownAction": "stopCompose",
+    "postAttachCommand": "~/start.sh",
+    "workspaceFolder": "/workspace",
+    "forwardPorts": [3020, 3021, 3022],
+    "customizations": {
+      "vscode": {
+        "extensions": [
+          "dbaeumer.vscode-eslint",
+          "esbenp.prettier-vscode",
+          "jianglinghao.vscode-npm-scripts",
+          "eamodio.gitlens",
+          "ms-azuretools.vscode-docker"
+        ],
+        "settings": {
+          // General settings
+          "files.eol": "\n",
+          "remote.otherPortsAttributes": {
+            "onAutoForward": "ignore"
+          },
+          // Docker
+          "remote.extensionKind": {
+              "ms-azuretools.vscode-docker": "workspace"
+          },
+          "terminal.integrated.profiles.linux": {
+            "bash": {
+              "path": "/bin/bash"
+            }
+          },
+          "terminal.integrated.defaultProfile.linux": "bash"
+        }
+      }
+    }
+  }
+  
