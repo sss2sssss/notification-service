@@ -69,4 +69,8 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     }
     return document;
   }
+
+  async deleteAll(): Promise<void> {
+    await this.model.deleteMany();
+  }
 }

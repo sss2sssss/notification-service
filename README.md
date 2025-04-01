@@ -30,8 +30,9 @@
 
 # How to run unit test
 
-- Currently this project only cover for jest unit test (also only focus on controller)
+- Currently this project having both controller unit test and e2e test
 - Run `npm run test` to run all three controllers unit tests
+- Run `npm run test:e2e` to run all three app service e2e tests, note that it will involve db read/ write so better to use the config from .env.test and paste into .env, and before this please run `npm run start:dev` to start the all the service before you run the `npm run test:e2e` as inside the service having Axios API call to other microservices
 
 # How to build + run in prod mode
 

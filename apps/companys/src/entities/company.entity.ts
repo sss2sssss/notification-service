@@ -5,6 +5,9 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 export class CompanyInfoDocument extends AbstractDocument {
   @Prop({ type: String, required: true })
   companyName: string;
+
+  @Prop({ type: String, required: false })
+  channel?: 'email' | 'ui';
 }
 
 export const CompanyInfoSchema =

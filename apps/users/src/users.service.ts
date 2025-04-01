@@ -108,22 +108,7 @@ export class UsersService {
     return this.usersRepository.findOneAndDelete({ _id });
   }
 
-  /*findAll() {
-    return this.companysRepository.find({});
+  removeAll() {
+    return this.usersRepository.deleteAll();
   }
-
-  findOne(_id: string) {
-    return this.companysRepository.findOne({ _id });
-  }
-
-  update(_id: string, updateCompanyDto: UpdateCompanyDto) {
-    return this.companysRepository.findOneAndUpdate(
-      { _id },
-      { $set: updateCompanyDto },
-    );
-  }
-
-  remove(_id: string) {
-    return this.companysRepository.findOneAndDelete({ _id });
-  }*/
 }

@@ -60,4 +60,8 @@ export class CompanysService {
   remove(_id: string) {
     return this.companysRepository.findOneAndDelete({ _id });
   }
+
+  removeAll() {
+    return this.companysRepository.deleteAll();
+  }
 }
