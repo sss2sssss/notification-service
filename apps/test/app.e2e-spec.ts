@@ -6,7 +6,8 @@ import { UsersService } from '../users/src/users.service';
 import { v4 } from 'uuid';
 import { CompanysService } from '../companys/src/companys.service';
 import { CompanysModule } from '../companys/src/companys.module';
-import { channel } from 'diagnostics_channel';
+import { NotificationsModule } from '../notifications/src/notifications.module';
+import { NotificationsService } from '../notifications/src/notifications.service';
 
 interface CompanyModel {
   _id: string;
@@ -24,6 +25,8 @@ let companysService: CompanysService;
 let companyApp: INestApplication;
 let userApp: INestApplication;
 let usersService: UsersService;
+let notificationApp: INestApplication;
+let notificationsService: NotificationsService;
 let companyBody: CompanyModel[];
 let userBody: UserModel[];
 let userBody2: UserModel[];
@@ -160,7 +163,7 @@ describe('UsersController (e2e)', () => {
       .send({
         companyId: companyBody[0]._id,
         firstName: userName1,
-        channel: 'ui'
+        channel: 'ui',
       })
       .expect(201);
   });
@@ -185,7 +188,7 @@ describe('UsersController (e2e)', () => {
       .send({
         companyId: companyBody[0]._id,
         firstName: userName1,
-        channel: 'ui'
+        channel: 'ui',
       })
       .expect(403);
   });
@@ -221,9 +224,22 @@ describe('UsersController (e2e)', () => {
       .send({
         companyId: companyBody[0]._id,
         firstName: `$(userName1)-a`,
-        channel: 'email',
+        channel: 'ui',
       })
       .expect(200);
+  });
+
+  it('Get User Info For First Company Again', () => {
+    return request(userApp.getHttpServer())
+      .get('/users')
+      .query({
+        companyId: companyBody[0]._id,
+      })
+      .expect(200)
+      .expect((resp) => {
+        userBody = resp?.body as UserModel[];
+        expect(userBody.length).toBe(1);
+      });
   });
 
   it('Delete Second User Info', () => {
@@ -260,12 +276,139 @@ describe('UsersController (e2e)', () => {
   });
 });
 
+describe('NotificationsController (e2e)', () => {
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [NotificationsModule],
+    }).compile();
+
+    notificationsService =
+      moduleFixture.get<NotificationsService>(NotificationsService);
+    notificationApp = moduleFixture.createNestApplication();
+    await notificationApp.init();
+  });
+
+  it('Invalid Company', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'happy-birthday',
+        userId: userBody2[0]._id,
+        companyId: userBody2[0].companyId + '1',
+      })
+      .expect(500);
+  });
+
+  it('Channel Not Subscribe Scenario for leave-balance-reminder', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'leave-balance-reminder',
+        userId: userBody2[0]._id,
+        companyId: userBody2[0].companyId,
+      })
+      .expect(403);
+  });
+
+  it('Channel Not Subscribe Scenario for monthly-payslip', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'monthly-payslip',
+        userId: userBody[0]._id,
+        companyId: userBody[0].companyId,
+      })
+      .expect(403);
+  });
+
+  it('Happy Birthday Reminder for first company', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'happy-birthday',
+        userId: userBody[0]._id,
+        companyId: userBody[0].companyId,
+      })
+      .expect(201);
+  });
+
+  it('Happy Birthday Reminder for second company', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'happy-birthday',
+        userId: userBody2[0]._id,
+        companyId: userBody2[0].companyId,
+      })
+      .expect(201);
+  });
+
+  it('Leave Balance Reminder Scenario', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'leave-balance-reminder',
+        userId: userBody[0]._id,
+        companyId: userBody[0].companyId,
+      })
+      .expect(201);
+  });
+
+  it('Monthly Payslip Reminder Scenario', () => {
+    return request(notificationApp.getHttpServer())
+      .post('/notifications')
+      .set('Accept', 'application/json')
+      .send({
+        notificationType: 'monthly-payslip',
+        userId: userBody2[0]._id,
+        companyId: userBody2[0].companyId,
+      })
+      .expect(201);
+  });
+
+  it('Get Notification List for First Company User, should receive two for leave + birthday', () => {
+    return request(notificationApp.getHttpServer())
+      .get('/notifications')
+      .query({
+        companyId: userBody[0].companyId,
+        userId: userBody[0]._id,
+      })
+      .expect(200)
+      .expect((resp) => {
+        const body = resp?.body as any[];
+        expect(body.length).toBe(2);
+      });
+  });
+
+  it('Get Notification List for Second Company User, should receive one for birthday', () => {
+    return request(notificationApp.getHttpServer())
+      .get('/notifications')
+      .query({
+        companyId: userBody2[0].companyId,
+        userId: userBody2[0]._id,
+      })
+      .expect(200)
+      .expect((resp) => {
+        const body = resp?.body as any[];
+        expect(body.length).toBe(1);
+      });
+  });
+});
+
 describe('Clean Up', () => {
   afterAll(async () => {
     await companysService.removeAll();
     await companyApp.close();
     await usersService.removeAll();
     await userApp.close();
+    await notificationsService.removeAll();
+    await notificationApp.close();
   });
 
   it('Test Finish', () => {
