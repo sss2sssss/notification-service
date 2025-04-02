@@ -6,12 +6,11 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "roots": [
+    "<rootDir>/libs/",
+    "<rootDir>/apps/"
+  ],
   "moduleNameMapper": {
-    "@app/common": [
-      "/workspace/libs/common/src"
-    ],
-    "@app/common/*": [
-      "/workspace/libs/common/src/*"
-    ]
+    "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
   }
 }

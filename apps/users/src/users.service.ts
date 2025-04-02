@@ -8,11 +8,7 @@ import {
 import { UsersRepository } from './users.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-
-interface CompanyInfoInterface {
-  _id: string;
-  companyName: string;
-}
+import { CompanyInfoInterface } from '@app/common/interface';
 
 @Injectable()
 export class UsersService {

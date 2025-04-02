@@ -2,29 +2,12 @@ import { HttpService } from '@nestjs/axios';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { NotificationsRepository } from './notifications.repository';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-
-enum Notification {
-  email = 'email',
-  ui = 'ui',
-}
-
-interface UserInfoInterface {
-  _id: string;
-  firstName: string;
-  channel?: Notification;
-}
-
-interface CompanyInfoInterface {
-  _id: string;
-  companyName: string;
-  channel?: Notification;
-}
-
-interface TemplateInterface {
-  subject: string;
-  content: string;
-  sendChannel: Notification[];
-}
+import {
+  CompanyInfoInterface,
+  Notification,
+  TemplateInterface,
+  UserInfoInterface,
+} from '@app/common/interface';
 
 @Injectable()
 export class NotificationsService {
@@ -60,6 +43,7 @@ export class NotificationsService {
 
   async generateTemplate(
     createNotificationDto: CreateNotificationDto,
+    notificationToGenerate: Notification[],
   ): Promise<TemplateInterface> {
     const companyServiceUrl = process.env.COMPANY_SERVICE_URI;
     const userServiceUrl = process.env.USER_SERVICE_URI;
@@ -84,19 +68,19 @@ export class NotificationsService {
         return {
           subject: `Leave Reminder for User ${result?.data?.firstName}`,
           content: `You got upcoming leave on company ${companyResult?.data?.companyName}`,
-          sendChannel: [Notification.ui],
+          sendChannel: notificationToGenerate,
         };
       case 'monthly-payslip':
         return {
           subject: `Monthly Payslip for User ${result?.data?.firstName}`,
           content: `Here's enclose with payslip for company ${companyResult?.data?.companyName}`,
-          sendChannel: [Notification.email],
+          sendChannel: notificationToGenerate,
         };
       case 'happy-birthday':
         return {
           subject: `Happy Birthday for User ${result?.data?.firstName}`,
           content: `Company ${companyResult?.data?.companyName} would wish you happy birthday!`,
-          sendChannel: [Notification.ui, Notification.email],
+          sendChannel: notificationToGenerate,
         };
     }
   }
@@ -120,7 +104,8 @@ export class NotificationsService {
     if (result?.data?._id !== createNotificationDto.userId)
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
-    if (result?.data?.channel) return result?.data?.channel;
+    if (result?.data?.channel && result?.data?.channel?.length > 0)
+      return result?.data?.channel;
 
     const companyResult =
       await this.httpService.axiosRef.get<CompanyInfoInterface>(
@@ -130,24 +115,27 @@ export class NotificationsService {
     if (companyResult?.data?._id !== createNotificationDto.companyId)
       throw new HttpException('Company not found', HttpStatus.NOT_FOUND);
 
-    if (companyResult?.data?.channel) return companyResult?.data?.channel;
+    if (
+      companyResult?.data?.channel &&
+      companyResult?.data?.channel?.length > 0
+    )
+      return companyResult?.data?.channel;
 
     throw new HttpException('Channel not found', HttpStatus.NOT_FOUND);
   }
 
   async checkEligible(createNotificationDto: CreateNotificationDto) {
     const result = await this.getNotificationTypeToSend(createNotificationDto);
-
     switch (createNotificationDto.notificationType) {
       case 'leave-balance-reminder':
         return {
-          eligible: result === Notification.ui,
-          notification: result,
+          eligible: result.includes(Notification.ui),
+          notification: [Notification.ui],
         };
       case 'monthly-payslip':
         return {
-          eligible: result === Notification.email,
-          notification: result,
+          eligible: result.includes(Notification.email),
+          notification: [Notification.email],
         };
       default:
         return {
@@ -166,7 +154,10 @@ export class NotificationsService {
         HttpStatus.FORBIDDEN,
       );
 
-    const template = await this.generateTemplate(createNotificationDto);
+    const template = await this.generateTemplate(
+      createNotificationDto,
+      checkEligibleResult.notification,
+    );
 
     await this.sendNotification(createNotificationDto, template);
 

@@ -8,18 +8,7 @@ import { CompanysService } from '../companys/src/companys.service';
 import { CompanysModule } from '../companys/src/companys.module';
 import { NotificationsModule } from '../notifications/src/notifications.module';
 import { NotificationsService } from '../notifications/src/notifications.service';
-
-interface CompanyModel {
-  _id: string;
-  companyName: string;
-  channel?: 'email' | 'ui';
-}
-interface UserModel {
-  _id: string;
-  companyId: string;
-  firstName: string;
-  channel?: 'email' | 'ui';
-}
+import { CompanyInfoInterface, UserInfoInterface } from '@app/common/interface';
 
 let companysService: CompanysService;
 let companyApp: INestApplication;
@@ -27,9 +16,9 @@ let userApp: INestApplication;
 let usersService: UsersService;
 let notificationApp: INestApplication;
 let notificationsService: NotificationsService;
-let companyBody: CompanyModel[];
-let userBody: UserModel[];
-let userBody2: UserModel[];
+let companyBody: CompanyInfoInterface[];
+let userBody: UserInfoInterface[];
+let userBody2: UserInfoInterface[];
 
 describe('CompanysController (e2e)', () => {
   const companyName1 = `Test Company ${v4()}`;
@@ -51,7 +40,7 @@ describe('CompanysController (e2e)', () => {
       .set('Accept', 'application/json')
       .send({
         companyName: companyName1,
-        channel: 'ui',
+        channel: ['ui'],
       })
       .expect(201);
   });
@@ -62,7 +51,7 @@ describe('CompanysController (e2e)', () => {
       .set('Accept', 'application/json')
       .send({
         companyName: companyName1,
-        channel: 'ui',
+        channel: ['ui'],
       })
       .expect(403);
   });
@@ -72,7 +61,7 @@ describe('CompanysController (e2e)', () => {
       .get('/companys')
       .expect(200)
       .expect((resp) => {
-        companyBody = resp?.body as CompanyModel[];
+        companyBody = resp?.body as CompanyInfoInterface[];
         expect(companyBody.length).toBe(1);
       });
   });
@@ -89,7 +78,7 @@ describe('CompanysController (e2e)', () => {
       .set('Accept', 'application/json')
       .send({
         companyName: companyName2,
-        channel: 'email',
+        channel: ['email'],
       })
       .expect(201);
   });
@@ -99,7 +88,7 @@ describe('CompanysController (e2e)', () => {
       .get('/companys')
       .expect(200)
       .expect((resp) => {
-        companyBody = resp?.body as CompanyModel[];
+        companyBody = resp?.body as CompanyInfoInterface[];
         expect(companyBody.length).toBe(2);
       });
   });
@@ -126,7 +115,7 @@ describe('CompanysController (e2e)', () => {
       .set('Accept', 'application/json')
       .send({
         companyName: companyName2,
-        channel: 'email',
+        channel: ['email', 'ui'],
       })
       .expect(201);
   });
@@ -136,15 +125,16 @@ describe('CompanysController (e2e)', () => {
       .get('/companys')
       .expect(200)
       .expect((resp) => {
-        companyBody = resp?.body as CompanyModel[];
+        companyBody = resp?.body as CompanyInfoInterface[];
         expect(companyBody.length).toBe(2);
       });
   });
 });
 
 describe('UsersController (e2e)', () => {
-  const userName1 = `Test User 1`;
+  const userName1 = `Test User ${v4()}`;
   const userName2 = `Test User ${v4()}`;
+  const userName3 = `Test User ${v4()}`;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -163,7 +153,7 @@ describe('UsersController (e2e)', () => {
       .send({
         companyId: companyBody[0]._id,
         firstName: userName1,
-        channel: 'ui',
+        channel: ['ui'],
       })
       .expect(201);
   });
@@ -176,7 +166,7 @@ describe('UsersController (e2e)', () => {
       })
       .expect(200)
       .expect((resp) => {
-        userBody = resp?.body as UserModel[];
+        userBody = resp?.body as UserInfoInterface[];
         expect(userBody.length).toBe(1);
       });
   });
@@ -188,7 +178,7 @@ describe('UsersController (e2e)', () => {
       .send({
         companyId: companyBody[0]._id,
         firstName: userName1,
-        channel: 'ui',
+        channel: ['ui'],
       })
       .expect(403);
   });
@@ -212,7 +202,7 @@ describe('UsersController (e2e)', () => {
       })
       .expect(200)
       .expect((resp) => {
-        userBody2 = resp?.body as UserModel[];
+        userBody2 = resp?.body as UserInfoInterface[];
         expect(userBody2.length).toBe(1);
       });
   });
@@ -224,7 +214,7 @@ describe('UsersController (e2e)', () => {
       .send({
         companyId: companyBody[0]._id,
         firstName: `$(userName1)-a`,
-        channel: 'ui',
+        channel: ['ui'],
       })
       .expect(200);
   });
@@ -237,7 +227,7 @@ describe('UsersController (e2e)', () => {
       })
       .expect(200)
       .expect((resp) => {
-        userBody = resp?.body as UserModel[];
+        userBody = resp?.body as UserInfoInterface[];
         expect(userBody.length).toBe(1);
       });
   });
@@ -270,8 +260,33 @@ describe('UsersController (e2e)', () => {
       })
       .expect(200)
       .expect((resp) => {
-        userBody2 = resp?.body as UserModel[];
+        userBody2 = resp?.body as UserInfoInterface[];
         expect(userBody2.length).toBe(1);
+      });
+  });
+
+  it('Save Third User Info', () => {
+    return request(userApp.getHttpServer())
+      .post('/users')
+      .set('Accept', 'application/json')
+      .send({
+        companyId: companyBody[1]._id,
+        firstName: userName3,
+        channel: ['email'],
+      })
+      .expect(201);
+  });
+
+  it('Get Second and Third User Info on Second Company', () => {
+    return request(userApp.getHttpServer())
+      .get('/users')
+      .query({
+        companyId: companyBody[1]._id,
+      })
+      .expect(200)
+      .expect((resp) => {
+        userBody2 = resp?.body as UserInfoInterface[];
+        expect(userBody2.length).toBe(2);
       });
   });
 });
@@ -306,8 +321,8 @@ describe('NotificationsController (e2e)', () => {
       .set('Accept', 'application/json')
       .send({
         notificationType: 'leave-balance-reminder',
-        userId: userBody2[0]._id,
-        companyId: userBody2[0].companyId,
+        userId: userBody2[1]._id,
+        companyId: userBody2[1].companyId,
       })
       .expect(403);
   });
